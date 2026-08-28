@@ -4,16 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DJ MICHAEL | Gestión de Eventos & Agenda</title>
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
         :root {
             --bg-dark: #090a0f;
-            --bg-card: rgba(18, 20, 29, 0.75);
-            --bg-card-hover: rgba(28, 32, 48, 0.9);
+            --bg-card: rgba(18, 20, 29, 0.8);
+            --bg-card-hover: rgba(28, 32, 48, 0.95);
             --primary-red: #ff1e43;
             --primary-glow: rgba(255, 30, 67, 0.4);
             --accent-cyan: #00f2fe;
@@ -43,7 +45,6 @@
             min-height: 100vh;
         }
 
-        /* Canvas & Background */
         #particles-canvas {
             position: fixed;
             top: 0;
@@ -80,7 +81,7 @@
         .nav-container {
             max-width: 1320px;
             margin: 0 auto;
-            padding: 1rem 1.5rem;
+            padding: 0.9rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -94,14 +95,14 @@
         }
 
         .logo-box img {
-            height: 44px;
+            height: 42px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 0 10px rgba(255, 30, 67, 0.4));
         }
 
         .logo-text {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 800;
             color: #fff;
             text-transform: uppercase;
@@ -111,21 +112,16 @@
 
         .main-container {
             max-width: 1320px;
-            margin: 110px auto 4rem;
+            margin: 95px auto 4rem;
             padding: 0 1.5rem;
         }
 
         .page-header {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .page-header h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-family: var(--font-heading);
             font-weight: 800;
         }
@@ -136,75 +132,79 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Forms & Cards */
+        /* Card Form */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 20px;
             backdrop-filter: blur(12px);
-            padding: 2rem;
-            margin-bottom: 2.5rem;
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 2rem;
             box-shadow: 0 15px 40px rgba(0,0,0,0.5);
         }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         .card-header i {
             color: var(--primary-red);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
 
         .card-header h2 {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             color: #fff;
             font-family: var(--font-heading);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.2rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
+            gap: 5px;
         }
 
         .form-group label {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: var(--text-muted);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group label i {
+            color: var(--primary-red);
+            font-size: 0.8rem;
         }
 
         .form-control {
             width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
+            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
             color: #fff;
             font-family: var(--font-body);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary-red);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.09);
             box-shadow: 0 0 12px rgba(255, 30, 67, 0.25);
         }
 
@@ -213,11 +213,10 @@
             color: #fff;
         }
 
-        /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #ff1e43 0%, #d60e2e 100%);
             color: #fff;
-            padding: 0.8rem 1.8rem;
+            padding: 0.75rem 1.8rem;
             border-radius: 50px;
             font-weight: 700;
             box-shadow: 0 4px 20px var(--primary-glow);
@@ -230,6 +229,7 @@
             gap: 8px;
             text-decoration: none;
             font-family: var(--font-body);
+            font-size: 0.95rem;
         }
 
         .btn-primary:hover {
@@ -240,7 +240,7 @@
         .btn-secondary {
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
-            padding: 0.6rem 1.2rem;
+            padding: 0.5rem 1.1rem;
             border-radius: 50px;
             font-weight: 600;
             border: 1px solid var(--border-color);
@@ -258,24 +258,35 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Grid de Eventos Registrados */
+        /* Lista de Eventos */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
         .events-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.4rem;
         }
 
         .event-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 18px;
-            padding: 1.5rem;
+            padding: 1.4rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             gap: 1rem;
             transition: all 0.3s ease;
-            position: relative;
         }
 
         .event-card:hover {
@@ -321,8 +332,14 @@
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
+        .status-finalizado {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
         .event-card-body h3 {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             color: #fff;
             margin-bottom: 0.5rem;
         }
@@ -331,7 +348,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: var(--text-muted);
             margin-bottom: 0.3rem;
         }
@@ -344,12 +361,11 @@
         .event-finance {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-color);
-            padding: 0.8rem;
+            padding: 0.75rem;
             border-radius: 12px;
-            margin-top: 0.5rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
+            gap: 0.4rem;
             font-size: 0.85rem;
         }
 
@@ -390,16 +406,19 @@
             transform: scale(1.2);
         }
 
-        .filter-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+        @media (max-width: 992px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        .search-box {
-            flex: 1;
-            min-width: 250px;
+        @media (max-width: 576px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group[style*="span 2"] {
+                grid-column: span 1 !important;
+            }
         }
     </style>
 </head>
@@ -410,24 +429,23 @@
 
     <header>
         <div class="nav-container">
-            <a href="index (61).html" class="logo-box">
+            <a href="https://pintosingenieria-max.github.io/fechas-/" class="logo-box">
                 <img src="dj michael logo principal.png" alt="DJ Michael Logo" />
                 <span class="logo-text">DJ MICHAEL · AGENDA</span>
             </a>
-            <a href="index (61).html" class="btn-secondary">
-                <i class="fa-solid fa-arrow-left"></i> Volver a la Web
+            <a href="https://wa.me/595994608163" target="_blank" class="btn-secondary">
+                <i class="fa-brands fa-whatsapp"></i> Soporte
             </a>
         </div>
     </header>
 
     <main class="main-container">
         <div class="page-header">
-            <div>
-                <h1>Gestor de <span class="gradient-text">Eventos & Fechas</span></h1>
-                <p style="color: var(--text-muted);">Registra contrataciones, señas y coordina la logística de tus shows.</p>
-            </div>
+            <h1>Gestor de <span class="gradient-text">Eventos & Fechas</span></h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Registra contrataciones, señas y coordina la logística de tus fechas.</p>
         </div>
 
+        <!-- FORMULARIO COMPACTO -->
         <section class="card">
             <div class="card-header">
                 <i class="fa-solid fa-calendar-plus"></i>
@@ -436,12 +454,12 @@
             <form id="eventForm">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="clientName"><i class="fa-solid fa-user"></i> Nombre del Cliente</label>
-                        <input type="text" id="clientName" class="form-control" placeholder="Ej. Juan Pérez" required />
+                        <label for="clientName"><i class="fa-solid fa-user"></i> Cliente</label>
+                        <input type="text" id="clientName" class="form-control" placeholder="Nombre completo" required />
                     </div>
                     <div class="form-group">
                         <label for="clientPhone"><i class="fa-brands fa-whatsapp"></i> Teléfono / WhatsApp</label>
-                        <input type="tel" id="clientPhone" class="form-control" placeholder="Ej. 0994608163" required />
+                        <input type="tel" id="clientPhone" class="form-control" placeholder="0994608163" required />
                     </div>
                     <div class="form-group">
                         <label for="eventDate"><i class="fa-regular fa-calendar"></i> Fecha del Evento</label>
@@ -457,9 +475,9 @@
                             <option value="15 Años">Fiesta de 15 Años</option>
                             <option value="Boda">Boda / Casamiento</option>
                             <option value="Quinta / Privado">Fiesta en Quinta / Privado</option>
-                            <option value="Cumpleaños">Cumpleaños Infantil / Adulto</option>
+                            <option value="Cumpleaños">Cumpleaños</option>
                             <option value="Corporativo">Evento Corporativo</option>
-                            <option value="Alquiler Pantalla LED">Alquiler de Pantalla LED</option>
+                            <option value="Alquiler Pantalla LED">Alquiler Pantalla LED</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -473,31 +491,31 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="eventLocation"><i class="fa-solid fa-location-dot"></i> Lugar / Local / Quinta</label>
+                        <label for="eventLocation"><i class="fa-solid fa-location-dot"></i> Lugar / Quinta</label>
                         <input type="text" id="eventLocation" class="form-control" placeholder="Ej. Quinta Las Palmas, Villeta" required />
                     </div>
                     <div class="form-group">
-                        <label for="totalCost"><i class="fa-solid fa-money-bill-wave"></i> Costo Total (Gs.)</label>
+                        <label for="eventStatus"><i class="fa-solid fa-tag"></i> Estado</label>
+                        <select id="eventStatus" class="form-control">
+                            <option value="Confirmado">Confirmado (Con Seña)</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="totalCost"><i class="fa-solid fa-money-bill-wave"></i> Total (Gs.)</label>
                         <input type="number" id="totalCost" class="form-control" placeholder="1100000" required />
                     </div>
                     <div class="form-group">
                         <label for="depositAmount"><i class="fa-solid fa-hand-holding-dollar"></i> Seña Abonada (Gs.)</label>
                         <input type="number" id="depositAmount" class="form-control" placeholder="300000" value="0" required />
                     </div>
-                    <div class="form-group">
-                        <label for="eventStatus"><i class="fa-solid fa-tag"></i> Estado</label>
-                        <select id="eventStatus" class="form-control">
-                            <option value="Confirmado">Confirmado (Con Seña)</option>
-                            <option value="Pendiente">Pendiente de Reserva</option>
-                            <option value="Finalizado">Finalizado</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="eventNotes"><i class="fa-solid fa-clipboard-list"></i> Observaciones / Requisitos de Sonido y Luces</label>
-                        <textarea id="eventNotes" class="form-control" rows="2" placeholder="Detalles de montaje, horario de prueba de sonido, pistas requeridas, etc."></textarea>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="eventNotes"><i class="fa-solid fa-note-sticky"></i> Observaciones / Detalles</label>
+                        <input type="text" id="eventNotes" class="form-control" placeholder="Detalles de sonido, montaje, hora de prueba..." />
                     </div>
                 </div>
-                <div style="margin-top: 1.5rem; text-align: right;">
+                <div style="margin-top: 1.2rem; display: flex; justify-content: flex-end;">
                     <button type="submit" class="btn-primary" id="saveBtn">
                         <i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase
                     </button>
@@ -505,10 +523,11 @@
             </form>
         </section>
 
+        <!-- AGENDA Y FILTROS -->
         <section>
             <div class="card-header" style="border:none; padding:0; margin-bottom:1rem;">
                 <i class="fa-solid fa-list-check"></i>
-                <h2>Agenda de Eventos</h2>
+                <h2>Agenda de Eventos Registrados</h2>
             </div>
             <div class="filter-bar">
                 <div class="search-box">
@@ -525,7 +544,7 @@
             <div class="events-grid" id="eventsContainer">
                 <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
                     <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
-                    <p style="margin-top: 1rem;">Cargando agenda de eventos...</p>
+                    <p style="margin-top: 1rem;">Cargando eventos...</p>
                 </div>
             </div>
         </section>
@@ -533,7 +552,7 @@
 
     <script>
         const CONFIG = {
-            FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'
+            FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'[cite: 1]
         };
 
         const eventForm = document.getElementById('eventForm');
@@ -543,7 +562,6 @@
 
         let localEvents = {};
 
-        // 1. CARGAR EVENTOS DESDE FIREBASE
         function fetchEvents() {
             fetch(CONFIG.FIREBASE_URL + 'eventos.json')
                 .then(res => res.json())
@@ -553,11 +571,10 @@
                 })
                 .catch(err => {
                     console.error("Error al cargar eventos:", err);
-                    eventsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al conectar con la base de datos.</div>`;
+                    eventsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al conectar con Firebase.</div>`;
                 });
         }
 
-        // 2. RENDERIZAR EVENTOS
         function renderEvents() {
             const query = searchInput.value.toLowerCase().trim();
             const filter = statusFilter.value;
@@ -580,11 +597,10 @@
                 return matchSearch && matchFilter;
             });
 
-            // Ordenar por fecha ascendente
             filteredKeys.sort((a, b) => new Date(localEvents[a].eventDate) - new Date(localEvents[b].eventDate));
 
             if (filteredKeys.length === 0) {
-                eventsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">No coinciden eventos con tu búsqueda.</div>`;
+                eventsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">No se encontraron eventos con los filtros actuales.</div>`;
                 return;
             }
 
@@ -594,7 +610,10 @@
                 const total = Number(ev.totalCost) || 0;
                 const deposit = Number(ev.depositAmount) || 0;
                 const saldo = total - deposit;
-                const statusClass = ev.eventStatus === 'Confirmado' ? 'status-confirmado' : 'status-pendiente';
+
+                let statusClass = 'status-pendiente';
+                if (ev.eventStatus === 'Confirmado') statusClass = 'status-confirmado';
+                if (ev.eventStatus === 'Finalizado') statusClass = 'status-finalizado';
 
                 html += `
                     <div class="event-card">
@@ -642,7 +661,7 @@
                             </div>
 
                             <div class="event-actions">
-                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=Hola%20${encodeURIComponent(ev.clientName)},%20te%20contacto%20de%20DJ%20Michael%20por%20tu%20evento%20del%20${ev.eventDate}" target="_blank" class="btn-secondary">
+                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=Hola%20${encodeURIComponent(ev.clientName)},%20te%20contacto%20de%20DJ%20Michael%20por%20tu%20evento%20del%20${formatDate(ev.eventDate)}" target="_blank" class="btn-secondary">
                                     <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp
                                 </a>
                                 <button class="btn-delete" onclick="deleteEvent('${key}')" title="Eliminar Evento">
@@ -657,7 +676,6 @@
             eventsContainer.innerHTML = html;
         }
 
-        // 3. GUARDAR NUEVO EVENTO
         eventForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('saveBtn');
@@ -698,9 +716,8 @@
             });
         });
 
-        // 4. ELIMINAR EVENTO
         window.deleteEvent = function(key) {
-            if (!confirm('¿Estás seguro de eliminar este evento de la base de datos?')) return;
+            if (!confirm('¿Estás seguro de eliminar este evento de Firebase?')) return;
 
             fetch(`${CONFIG.FIREBASE_URL}eventos/${key}.json`, {
                 method: 'DELETE'
@@ -712,7 +729,6 @@
             .catch(err => alert('Error al eliminar: ' + err.message));
         };
 
-        // Helpers
         function cleanPhone(phone) {
             return phone.replace(/\D/g, '').replace(/^0/, '');
         }
@@ -727,7 +743,6 @@
         searchInput.addEventListener('input', renderEvents);
         statusFilter.addEventListener('change', renderEvents);
 
-        // 5. FONDO DE PARTÍCULAS
         (function() {
             const canvas = document.getElementById('particles-canvas');
             const ctx = canvas.getContext('2d');
