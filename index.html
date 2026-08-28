@@ -14,7 +14,7 @@
     <style>
         :root {
             --bg-dark: #090a0f;
-            --bg-card: rgba(18, 20, 29, 0.8);
+            --bg-card: rgba(18, 20, 29, 0.85);
             --bg-card-hover: rgba(28, 32, 48, 0.95);
             --primary-red: #ff1e43;
             --primary-glow: rgba(255, 30, 67, 0.4);
@@ -132,7 +132,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Card Form */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -258,7 +257,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Lista de Eventos */
         .filter-bar {
             display: flex;
             gap: 1rem;
@@ -429,7 +427,7 @@
 
     <header>
         <div class="nav-container">
-            <a href="https://pintosingenieria-max.github.io/fechas-/" class="logo-box">
+            <a href="index.html" class="logo-box">
                 <img src="dj michael logo principal.png" alt="DJ Michael Logo" />
                 <span class="logo-text">DJ MICHAEL · AGENDA</span>
             </a>
@@ -445,7 +443,6 @@
             <p style="color: var(--text-muted); font-size: 0.95rem;">Registra contrataciones, señas y coordina la logística de tus fechas.</p>
         </div>
 
-        <!-- FORMULARIO COMPACTO -->
         <section class="card">
             <div class="card-header">
                 <i class="fa-solid fa-calendar-plus"></i>
@@ -523,7 +520,6 @@
             </form>
         </section>
 
-        <!-- AGENDA Y FILTROS -->
         <section>
             <div class="card-header" style="border:none; padding:0; margin-bottom:1rem;">
                 <i class="fa-solid fa-list-check"></i>
@@ -552,7 +548,7 @@
 
     <script>
         const CONFIG = {
-            FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'[cite: 1]
+            FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'
         };
 
         const eventForm = document.getElementById('eventForm');
@@ -571,7 +567,7 @@
                 })
                 .catch(err => {
                     console.error("Error al cargar eventos:", err);
-                    eventsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al conectar con Firebase.</div>`;
+                    eventsContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al conectar con Firebase.</div>';
                 });
         }
 
@@ -592,7 +588,9 @@
 
             let filteredKeys = keys.filter(k => {
                 const ev = localEvents[k];
-                const matchSearch = ev.clientName.toLowerCase().includes(query) || ev.eventLocation.toLowerCase().includes(query);
+                const client = (ev.clientName || '').toLowerCase();
+                const location = (ev.eventLocation || '').toLowerCase();
+                const matchSearch = client.includes(query) || location.includes(query);
                 const matchFilter = (filter === 'TODOS') || (ev.eventStatus === filter);
                 return matchSearch && matchFilter;
             });
@@ -600,7 +598,7 @@
             filteredKeys.sort((a, b) => new Date(localEvents[a].eventDate) - new Date(localEvents[b].eventDate));
 
             if (filteredKeys.length === 0) {
-                eventsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">No se encontraron eventos con los filtros actuales.</div>`;
+                eventsContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">No se encontraron eventos con los filtros actuales.</div>';
                 return;
             }
 
@@ -619,22 +617,22 @@
                     <div class="event-card">
                         <div>
                             <div class="event-card-header">
-                                <span class="event-type-badge">${ev.eventType}</span>
-                                <span class="event-status ${statusClass}">${ev.eventStatus}</span>
+                                <span class="event-type-badge">${ev.eventType || 'Evento'}</span>
+                                <span class="event-status ${statusClass}">${ev.eventStatus || 'Pendiente'}</span>
                             </div>
                             <div class="event-card-body" style="margin-top: 0.8rem;">
-                                <h3>${ev.clientName}</h3>
+                                <h3>${ev.clientName || 'Sin Nombre'}</h3>
                                 <div class="event-detail-item">
                                     <i class="fa-regular fa-calendar"></i>
-                                    <span>${formatDate(ev.eventDate)} · ${ev.eventTime} hs.</span>
+                                    <span>${formatDate(ev.eventDate)} · ${ev.eventTime || '--:--'} hs.</span>
                                 </div>
                                 <div class="event-detail-item">
                                     <i class="fa-solid fa-location-dot"></i>
-                                    <span>${ev.eventLocation}</span>
+                                    <span>${ev.eventLocation || 'No especificado'}</span>
                                 </div>
                                 <div class="event-detail-item">
                                     <i class="fa-solid fa-cube"></i>
-                                    <span>${ev.packageSelected}</span>
+                                    <span>${ev.packageSelected || 'Paquete'}</span>
                                 </div>
                                 ${ev.eventNotes ? `
                                 <div class="event-detail-item" style="align-items: flex-start;">
@@ -661,7 +659,7 @@
                             </div>
 
                             <div class="event-actions">
-                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=Hola%20${encodeURIComponent(ev.clientName)},%20te%20contacto%20de%20DJ%20Michael%20por%20tu%20evento%20del%20${formatDate(ev.eventDate)}" target="_blank" class="btn-secondary">
+                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=Hola%20${encodeURIComponent(ev.clientName || '')},%20te%20contacto%20de%20DJ%20Michael%20por%20tu%20evento%20del%20${formatDate(ev.eventDate)}" target="_blank" class="btn-secondary">
                                     <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp
                                 </a>
                                 <button class="btn-delete" onclick="deleteEvent('${key}')" title="Eliminar Evento">
@@ -730,6 +728,7 @@
         };
 
         function cleanPhone(phone) {
+            if (!phone) return '';
             return phone.replace(/\D/g, '').replace(/^0/, '');
         }
 
