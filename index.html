@@ -264,6 +264,27 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
+        .btn-cancel {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
         .events-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -416,6 +437,20 @@
             min-width: 250px;
         }
 
+        /* Indicador de modo edición */
+        .editing-indicator {
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+        .editing-indicator i {
+            color: var(--accent-cyan);
+        }
+
         @media (max-width: 992px) {
             .form-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -458,10 +493,13 @@
         </div>
 
         <!-- FORMULARIO -->
-        <section class="card">
+        <section class="card" id="formCard">
             <div class="card-header">
                 <i class="fa-solid fa-calendar-plus"></i>
                 <h2>Registrar Nuevo Evento</h2>
+                <span class="editing-indicator" id="editingIndicator">
+                    <i class="fa-solid fa-pen-to-square"></i> Editando: <span id="editingClientName"></span>
+                </span>
             </div>
             <form id="eventForm">
                 <div class="form-grid">
@@ -527,7 +565,10 @@
                         <input type="text" id="eventNotes" class="form-control" placeholder="Detalles de sonido, montaje, horarios..." />
                     </div>
                 </div>
-                <div style="margin-top: 1.2rem; text-align: right;">
+                <div style="margin-top: 1.2rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" class="btn-cancel" id="cancelEditBtn" style="display: none;">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </button>
                     <button type="submit" class="btn-primary" id="saveBtn">
                         <i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase
                     </button>
@@ -572,8 +613,13 @@
         const eventsContainer = document.getElementById('eventsContainer');
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const editingIndicator = document.getElementById('editingIndicator');
+        const editingClientNameSpan = document.getElementById('editingClientName');
 
         let localEvents = {};
+        let editingKey = null; // clave del evento que se está editando (null = creación)
 
         // ========== FUNCIONES PRINCIPALES ==========
 
@@ -705,6 +751,10 @@
                                 <button class="btn-secondary" onclick="generarPDF('${key}', this)">
                                     <i class="fa-regular fa-file-pdf"></i> PDF
                                 </button>
+                                <!-- Botón Editar -->
+                                <button class="btn-secondary" onclick="editEvent('${key}')" style="color: var(--accent-cyan);">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </button>
                                 <button class="btn-delete" onclick="deleteEvent('${key}')" title="Eliminar Evento">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
@@ -717,14 +767,14 @@
             eventsContainer.innerHTML = html;
         }
 
-        // ========== GUARDAR NUEVO EVENTO ==========
+        // ========== GUARDAR / ACTUALIZAR EVENTO ==========
         eventForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('saveBtn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
-            const newEvent = {
+            const eventData = {
                 clientName: document.getElementById('clientName').value.trim(),
                 clientPhone: document.getElementById('clientPhone').value.trim(),
                 eventDate: document.getElementById('eventDate').value,
@@ -736,17 +786,32 @@
                 depositAmount: Number(document.getElementById('depositAmount').value),
                 eventStatus: document.getElementById('eventStatus').value,
                 eventNotes: document.getElementById('eventNotes').value.trim(),
-                createdAt: new Date().toISOString()
+                updatedAt: new Date().toISOString()
             };
 
-            fetch(CONFIG.FIREBASE_URL + 'eventos.json', {
-                method: 'POST',
+            // Si estamos editando, incluir createdAt para mantenerlo
+            if (editingKey && localEvents[editingKey]) {
+                eventData.createdAt = localEvents[editingKey].createdAt;
+            } else {
+                eventData.createdAt = new Date().toISOString();
+            }
+
+            let url = CONFIG.FIREBASE_URL + 'eventos.json';
+            let method = 'POST';
+            if (editingKey) {
+                url = `${CONFIG.FIREBASE_URL}eventos/${editingKey}.json`;
+                method = 'PUT';
+            }
+
+            fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEvent)
+                body: JSON.stringify(eventData)
             })
             .then(res => res.json())
             .then(() => {
-                eventForm.reset();
+                // Resetear formulario y salir de modo edición
+                resetFormAndExitEdit();
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase';
                 fetchEvents();
@@ -758,9 +823,66 @@
             });
         });
 
+        // ========== EDITAR EVENTO (cargar datos en formulario) ==========
+        window.editEvent = function(key) {
+            const ev = localEvents[key];
+            if (!ev) {
+                alert('Evento no encontrado.');
+                return;
+            }
+
+            // Cargar todos los campos
+            document.getElementById('clientName').value = ev.clientName || '';
+            document.getElementById('clientPhone').value = ev.clientPhone || '';
+            document.getElementById('eventDate').value = ev.eventDate || '';
+            document.getElementById('eventTime').value = ev.eventTime || '';
+            document.getElementById('eventType').value = ev.eventType || '15 Años';
+            document.getElementById('packageSelected').value = ev.packageSelected || 'Básico (800.000 Gs.)';
+            document.getElementById('eventLocation').value = ev.eventLocation || '';
+            document.getElementById('eventStatus').value = ev.eventStatus || 'Pendiente';
+            document.getElementById('totalCost').value = ev.totalCost || 0;
+            document.getElementById('depositAmount').value = ev.depositAmount || 0;
+            document.getElementById('eventNotes').value = ev.eventNotes || '';
+
+            // Guardar clave de edición
+            editingKey = key;
+
+            // Cambiar UI
+            saveBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Actualizar en Firebase';
+            document.querySelector('#formCard .card-header h2').textContent = 'Editando Evento';
+            editingIndicator.style.display = 'flex';
+            editingClientNameSpan.textContent = ev.clientName || 'Sin nombre';
+            cancelEditBtn.style.display = 'inline-flex';
+
+            // Desplazar suavemente al formulario
+            document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        // ========== CANCELAR EDICIÓN ==========
+        cancelEditBtn.addEventListener('click', function() {
+            resetFormAndExitEdit();
+        });
+
+        function resetFormAndExitEdit() {
+            eventForm.reset();
+            editingKey = null;
+            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase';
+            document.querySelector('#formCard .card-header h2').textContent = 'Registrar Nuevo Evento';
+            editingIndicator.style.display = 'none';
+            editingClientNameSpan.textContent = '';
+            cancelEditBtn.style.display = 'none';
+            // Limpiar posibles valores por defecto en selects
+            document.getElementById('depositAmount').value = '0';
+        }
+
         // ========== ELIMINAR EVENTO ==========
         window.deleteEvent = function(key) {
             if (!confirm('¿Estás seguro de eliminar este evento de la base de datos?')) return;
+
+            // Si el evento que se elimina es el que está en edición, salir de edición
+            if (editingKey === key) {
+                resetFormAndExitEdit();
+            }
 
             fetch(`${CONFIG.FIREBASE_URL}eventos/${key}.json`, {
                 method: 'DELETE'
