@@ -10,8 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- html2canvas + jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
+        /* ====== ESTILOS GENERALES ====== */
         :root {
             --bg-dark: #090a0f;
             --bg-card: rgba(18, 20, 29, 0.75);
@@ -45,7 +49,6 @@
             min-height: 100vh;
         }
 
-        /* Canvas & Background */
         #particles-canvas {
             position: fixed;
             top: 0;
@@ -138,7 +141,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Forms & Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -218,7 +220,6 @@
             color: #fff;
         }
 
-        /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #ff1e43 0%, #d60e2e 100%);
             color: #fff;
@@ -263,7 +264,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Grid de Eventos Registrados */
         .events-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -381,10 +381,12 @@
 
         .event-actions {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             padding-top: 0.8rem;
             border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .btn-delete {
@@ -395,6 +397,7 @@
             font-size: 1rem;
             padding: 6px;
             transition: transform 0.2s;
+            margin-left: auto;
         }
 
         .btn-delete:hover {
@@ -436,11 +439,11 @@
 
     <header>
         <div class="nav-container">
-            <a href="index.html" class="logo-box">
-                <img src="dj michael logo principal.png" alt="DJ Michael Logo" />
+            <a href="#" class="logo-box">
+                <img src="dj michael logo principal.png" alt="DJ Michael Logo" onerror="this.style.display='none'" />
                 <span class="logo-text">DJ MICHAEL · AGENDA</span>
             </a>
-            <a href="index.html" class="btn-secondary">
+            <a href="#" class="btn-secondary">
                 <i class="fa-solid fa-arrow-left"></i> Volver a la Web
             </a>
         </div>
@@ -454,7 +457,7 @@
             </div>
         </div>
 
-        <!-- FORMULARIO COMPACTO (TODO VISIBLE) -->
+        <!-- FORMULARIO -->
         <section class="card">
             <div class="card-header">
                 <i class="fa-solid fa-calendar-plus"></i>
@@ -532,7 +535,7 @@
             </form>
         </section>
 
-        <!-- AGENDA Y FILTROS -->
+        <!-- AGENDA -->
         <section>
             <div class="card-header" style="border:none; padding:0; margin-bottom:1rem;">
                 <i class="fa-solid fa-list-check"></i>
@@ -560,6 +563,7 @@
     </main>
 
     <script>
+        // ========== CONFIGURACIÓN ==========
         const CONFIG = {
             FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'
         };
@@ -571,7 +575,8 @@
 
         let localEvents = {};
 
-        // 1. CARGAR EVENTOS DESDE FIREBASE
+        // ========== FUNCIONES PRINCIPALES ==========
+
         function fetchEvents() {
             fetch(CONFIG.FIREBASE_URL + 'eventos.json')
                 .then(res => res.json())
@@ -585,7 +590,6 @@
                 });
         }
 
-        // 2. RENDERIZAR EVENTOS
         function renderEvents() {
             const query = searchInput.value.toLowerCase().trim();
             const filter = statusFilter.value;
@@ -611,7 +615,6 @@
                 return matchSearch && matchFilter;
             });
 
-            // Ordenar por fecha ascendente
             filteredKeys.sort((a, b) => new Date(localEvents[a].eventDate) - new Date(localEvents[b].eventDate));
 
             if (filteredKeys.length === 0) {
@@ -629,6 +632,21 @@
                 let statusClass = 'status-pendiente';
                 if (ev.eventStatus === 'Confirmado') statusClass = 'status-confirmado';
                 if (ev.eventStatus === 'Finalizado') statusClass = 'status-finalizado';
+
+                const waMessage = 
+`✅ *FICHA DE RESERVA - DJ MICHAEL* ✅
+
+👤 Cliente: ${ev.clientName}
+📅 Fecha: ${formatDate(ev.eventDate)} a las ${ev.eventTime} hs.
+📍 Lugar: ${ev.eventLocation}
+🎉 Tipo: ${ev.eventType}
+📦 Paquete: ${ev.packageSelected}
+💰 Total: ${total.toLocaleString('es-PY')} Gs.
+💵 Seña: ${deposit.toLocaleString('es-PY')} Gs.
+🧾 Saldo: ${saldo.toLocaleString('es-PY')} Gs.
+📝 Observaciones: ${ev.eventNotes || 'Ninguna'}
+
+🔹 *Fecha reservada. Queda confirmado.* 🔹`;
 
                 html += `
                     <div class="event-card">
@@ -676,9 +694,17 @@
                             </div>
 
                             <div class="event-actions">
-                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=Hola%20${encodeURIComponent(ev.clientName || '')},%20te%20contacto%20de%20DJ%20Michael%20por%20tu%20evento%20del%20${formatDate(ev.eventDate)}" target="_blank" class="btn-secondary">
-                                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp
+                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=${encodeURIComponent(waMessage)}" 
+                                   target="_blank" 
+                                   class="btn-secondary">
+                                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> Enviar Ficha
                                 </a>
+                                <button class="btn-secondary" onclick="copyFicha('${key}')">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                                <button class="btn-secondary" onclick="generarPDF('${key}', this)">
+                                    <i class="fa-regular fa-file-pdf"></i> PDF
+                                </button>
                                 <button class="btn-delete" onclick="deleteEvent('${key}')" title="Eliminar Evento">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
@@ -691,7 +717,7 @@
             eventsContainer.innerHTML = html;
         }
 
-        // 3. GUARDAR NUEVO EVENTO
+        // ========== GUARDAR NUEVO EVENTO ==========
         eventForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('saveBtn');
@@ -732,7 +758,7 @@
             });
         });
 
-        // 4. ELIMINAR EVENTO
+        // ========== ELIMINAR EVENTO ==========
         window.deleteEvent = function(key) {
             if (!confirm('¿Estás seguro de eliminar este evento de la base de datos?')) return;
 
@@ -746,7 +772,203 @@
             .catch(err => alert('Error al eliminar: ' + err.message));
         };
 
-        // Helpers
+        // ========== COPIAR FICHA ==========
+        window.copyFicha = function(key) {
+            const ev = localEvents[key];
+            if (!ev) return;
+            const total = Number(ev.totalCost) || 0;
+            const deposit = Number(ev.depositAmount) || 0;
+            const saldo = total - deposit;
+            const texto = 
+`✅ FICHA DE RESERVA - DJ MICHAEL ✅
+
+👤 Cliente: ${ev.clientName}
+📅 Fecha: ${formatDate(ev.eventDate)} a las ${ev.eventTime} hs.
+📍 Lugar: ${ev.eventLocation}
+🎉 Tipo: ${ev.eventType}
+📦 Paquete: ${ev.packageSelected}
+💰 Total: ${total.toLocaleString('es-PY')} Gs.
+💵 Seña: ${deposit.toLocaleString('es-PY')} Gs.
+🧾 Saldo: ${saldo.toLocaleString('es-PY')} Gs.
+📝 Observaciones: ${ev.eventNotes || 'Ninguna'}
+
+🔹 Fecha reservada. Queda confirmado. 🔹`;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('✅ Ficha copiada al portapapeles.');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = texto;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Ficha copiada al portapapeles (alternativo).');
+            });
+        };
+
+        // ========== GENERAR PDF (DISEÑO OSCURO CON LOGO) ==========
+        window.generarPDF = function(key, btnElement) {
+            const ev = localEvents[key];
+            if (!ev) {
+                alert('Evento no encontrado.');
+                return;
+            }
+
+            if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+                alert('Las librerías html2canvas o jsPDF no se cargaron correctamente.');
+                return;
+            }
+
+            const originalText = btnElement ? btnElement.innerHTML : '';
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+            }
+
+            const total = Number(ev.totalCost) || 0;
+            const deposit = Number(ev.depositAmount) || 0;
+            const saldo = total - deposit;
+
+            // Crear contenedor temporal visible pero sin interacción
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.top = '0';
+            tempDiv.style.left = '0';
+            tempDiv.style.width = '680px';
+            tempDiv.style.background = '#0b0e14'; // Fondo oscuro similar a la web
+            tempDiv.style.padding = '30px';
+            tempDiv.style.borderRadius = '16px';
+            tempDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.8)';
+            tempDiv.style.zIndex = '99999';
+            tempDiv.style.opacity = '1';
+            tempDiv.style.pointerEvents = 'none';
+            tempDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
+            tempDiv.style.border = '1px solid rgba(255,255,255,0.08)';
+            document.body.appendChild(tempDiv);
+
+            // Forzar reflow
+            tempDiv.getBoundingClientRect();
+
+            // Construir HTML del PDF con diseño oscuro y logo
+            // El logo se intenta cargar, si falla se muestra texto
+            const logoHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
+                    <img src="dj michael logo principal.png" 
+                         alt="DJ Michael" 
+                         style="height: 50px; width: auto; filter: drop-shadow(0 0 12px rgba(255,30,67,0.5));"
+                         onerror="this.style.display='none'; document.getElementById('logo-fallback-pdf').style.display='block';" />
+                    <span id="logo-fallback-pdf" style="display: none; font-size: 32px; font-weight: 800; color: #ff1e43; letter-spacing: 3px; text-shadow: 0 0 20px rgba(255,30,67,0.3);">DJ MICHAEL</span>
+                </div>
+            `;
+
+            tempDiv.innerHTML = `
+                <div style="background-color: #0b0e14; color: #f1f5f9; font-family: Arial, Helvetica, sans-serif; width: 100%; box-sizing: border-box; padding: 20px; border: 2px solid #ff1e43; border-radius: 12px;">
+                    ${logoHTML}
+                    <div style="text-align: center; border-bottom: 2px solid #ff1e43; padding-bottom: 15px; margin-bottom: 20px;">
+                        <p style="font-size: 12px; color: #94a3b8; margin-top: 5px; text-transform: uppercase; letter-spacing: 3px; font-weight: 600;">Comprobante de Reserva de Evento</p>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 25px;">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold; width: 35%;">👤 Cliente</td>
+                            <td style="padding: 10px 0; color: #f1f5f9; font-weight: bold;">${ev.clientName || 'Sin Nombre'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📞 Teléfono</td>
+                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.clientPhone || 'Sin Registro'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📅 Fecha y Hora</td>
+                            <td style="padding: 10px 0; color: #f1f5f9;">${formatDate(ev.eventDate)} - ${ev.eventTime || '--:--'} hs.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📍 Lugar / Local</td>
+                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.eventLocation || 'No especificado'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">🎉 Tipo de Evento</td>
+                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.eventType || 'Evento'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📦 Paquete Contratado</td>
+                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.packageSelected || 'Personalizado'}</td>
+                        </tr>
+                        ${ev.eventNotes ? `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📝 Observaciones</td>
+                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.eventNotes}</td>
+                        </tr>` : ''}
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 25px;">
+                        <tr>
+                            <td style="padding: 15px; text-align: center; width: 33.33%;">
+                                <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: 600;">Costo Total</span>
+                                <strong style="font-size: 18px; color: #f1f5f9;">${total.toLocaleString('es-PY')} Gs.</strong>
+                            </td>
+                            <td style="padding: 15px; text-align: center; width: 33.33%; border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);">
+                                <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: 600;">Seña Abonada</span>
+                                <strong style="font-size: 18px; color: #10b981;">${deposit.toLocaleString('es-PY')} Gs.</strong>
+                            </td>
+                            <td style="padding: 15px; text-align: center; width: 33.33%;">
+                                <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: 600;">Saldo Pendiente</span>
+                                <strong style="font-size: 18px; color: #00f2fe;">${saldo.toLocaleString('es-PY')} Gs.</strong>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="text-align: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
+                        <p style="font-size: 16px; font-weight: bold; color: #10b981; margin: 0;">✅ ¡FECHA RESERVADA Y CONFIRMADA!</p>
+                        <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Este comprobante sirve como garantía oficial de reserva.</p>
+                        <p style="font-size: 10px; color: #64748b; margin-top: 8px;">DJ MICHAEL · Música para tus momentos especiales</p>
+                    </div>
+                </div>
+            `;
+
+            // Esperar renderizado
+            setTimeout(() => {
+                html2canvas(tempDiv, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0b0e14',
+                    width: 680,
+                    height: tempDiv.scrollHeight,
+                    logging: false,
+                    allowTaint: false
+                }).then(canvas => {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const pdfWidth = 210;
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`Reserva_${(ev.clientName || 'Reserva').replace(/[^a-zA-Z0-9]/g, '_')}_${formatDate(ev.eventDate)}.pdf`);
+
+                    document.body.removeChild(tempDiv);
+                    if (btnElement) {
+                        btnElement.disabled = false;
+                        btnElement.innerHTML = originalText;
+                    }
+                }).catch(err => {
+                    console.error('Error en html2canvas:', err);
+                    alert('Error al generar la imagen del PDF: ' + err.message);
+                    document.body.removeChild(tempDiv);
+                    if (btnElement) {
+                        btnElement.disabled = false;
+                        btnElement.innerHTML = originalText;
+                    }
+                });
+            }, 400);
+        };
+
+        // ========== HELPERS ==========
         function cleanPhone(phone) {
             if (!phone) return '';
             return String(phone).replace(/\D/g, '').replace(/^0/, '');
@@ -759,10 +981,11 @@
             return str;
         }
 
+        // ========== FILTROS ==========
         searchInput.addEventListener('input', renderEvents);
         statusFilter.addEventListener('change', renderEvents);
 
-        // 5. FONDO DE PARTÍCULAS
+        // ========== PARTÍCULAS (fondo animado) ==========
         (function() {
             const canvas = document.getElementById('particles-canvas');
             const ctx = canvas.getContext('2d');
@@ -810,6 +1033,7 @@
             animate();
         })();
 
+        // ========== INICIALIZAR ==========
         document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>
 </body>
