@@ -807,7 +807,7 @@
             });
         };
 
-        // ========== GENERAR PDF (DISEÑO OSCURO CON LOGO) ==========
+        // ========== GENERAR PDF (DISEÑO PROFESIONAL - FONDO BLANCO) ==========
         window.generarPDF = function(key, btnElement) {
             const ev = localEvents[key];
             if (!ev) {
@@ -830,109 +830,172 @@
             const deposit = Number(ev.depositAmount) || 0;
             const saldo = total - deposit;
 
-            // Crear contenedor temporal visible pero sin interacción
+            // Generar referencia con fecha del evento
+            const dateObj = new Date(ev.eventDate + 'T00:00:00');
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const refDate = `${year}${month}${day}`;
+            const seq = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+            const ref = `RSV-${refDate}-${seq}`;
+
+            // Fecha de emisión
+            const now = new Date();
+            const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const emission = `${months[now.getMonth()]} ${now.getFullYear()}`;
+
+            // Determinar estado
+            let statusText = 'ACTIVO';
+            if (ev.eventStatus === 'Finalizado') statusText = 'FINALIZADO';
+            else if (ev.eventStatus === 'Pendiente') statusText = 'PENDIENTE';
+
+            // Mapeo de paquete a descripción de cobertura
+            const packageDescriptions = {
+                'Básico (800.000 Gs.)': '• Sistema de Sonido Profesional de alta fidelidad adaptado al recinto.\n• Consola / Cabina de DJ con mezcla en vivo durante todo el evento.\n• Montaje previo, pruebas técnicas de audio y desmontaje post-evento.',
+                'Básico + LED (1.100.000 Gs.)': '• Sistema de Sonido Profesional de alta fidelidad adaptado al recinto.\n• Consola / Cabina de DJ con mezcla en vivo durante todo el evento.\n• Estructura de Iluminación Ambiental y Show de Luces LED / Robóticas.\n• Montaje previo, pruebas técnicas de audio y desmontaje post-evento.',
+                'Show Exterior (2.800.000 Gs.)': '• Sistema de Sonido de gran potencia para exteriores.\n• Consola / Cabina de DJ con mezcla en vivo.\n• Iluminación escénica profesional y efectos visuales.\n• Montaje y desmontaje completo.',
+                'Solo Pantalla LED': '• Pantalla LED de gran formato.\n• Contenido visual personalizado.\n• Montaje y desmontaje.',
+                'Personalizado': '• Paquete personalizado según requerimientos del cliente.\n• Consultar detalles específicos.'
+            };
+            let cobertura = packageDescriptions[ev.packageSelected] || '• Servicio profesional de audio e iluminación.\n• Montaje y desmontaje.\n• Atención personalizada.';
+            if (ev.eventNotes) {
+                cobertura += '\n• Observaciones: ' + ev.eventNotes;
+            }
+
+            const defaultTerms = `1. Garantía de Fecha: El presente comprobante certifica el bloqueo de la fecha indicada en la agenda oficial de DJ Michael.
+2. Requerimientos Técnicos: El organizador/local deberá proveer una toma de corriente eléctrica estable cercana al sector de cabina.
+3. Cancelación del Saldo: El saldo pendiente se abonará según lo acordado previo o al inicio del montaje del evento.`;
+
+            // Contenedor temporal
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'fixed';
             tempDiv.style.top = '0';
             tempDiv.style.left = '0';
-            tempDiv.style.width = '680px';
-            tempDiv.style.background = '#0b0e14'; // Fondo oscuro similar a la web
+            tempDiv.style.width = '700px';
+            tempDiv.style.background = '#ffffff';
             tempDiv.style.padding = '30px';
-            tempDiv.style.borderRadius = '16px';
-            tempDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.8)';
+            tempDiv.style.borderRadius = '0';
+            tempDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.3)';
             tempDiv.style.zIndex = '99999';
             tempDiv.style.opacity = '1';
             tempDiv.style.pointerEvents = 'none';
             tempDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
-            tempDiv.style.border = '1px solid rgba(255,255,255,0.08)';
+            tempDiv.style.color = '#1e293b';
+            tempDiv.style.border = '1px solid #e2e8f0';
             document.body.appendChild(tempDiv);
 
-            // Forzar reflow
-            tempDiv.getBoundingClientRect();
-
-            // Construir HTML del PDF con diseño oscuro y logo
-            // El logo se intenta cargar, si falla se muestra texto
-            const logoHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
-                    <img src="dj michael logo principal.png" 
-                         alt="DJ Michael" 
-                         style="height: 50px; width: auto; filter: drop-shadow(0 0 12px rgba(255,30,67,0.5));"
-                         onerror="this.style.display='none'; document.getElementById('logo-fallback-pdf').style.display='block';" />
-                    <span id="logo-fallback-pdf" style="display: none; font-size: 32px; font-weight: 800; color: #ff1e43; letter-spacing: 3px; text-shadow: 0 0 20px rgba(255,30,67,0.3);">DJ MICHAEL</span>
-                </div>
-            `;
-
             tempDiv.innerHTML = `
-                <div style="background-color: #0b0e14; color: #f1f5f9; font-family: Arial, Helvetica, sans-serif; width: 100%; box-sizing: border-box; padding: 20px; border: 2px solid #ff1e43; border-radius: 12px;">
-                    ${logoHTML}
-                    <div style="text-align: center; border-bottom: 2px solid #ff1e43; padding-bottom: 15px; margin-bottom: 20px;">
-                        <p style="font-size: 12px; color: #94a3b8; margin-top: 5px; text-transform: uppercase; letter-spacing: 3px; font-weight: 600;">Comprobante de Reserva de Evento</p>
+                <div style="max-width: 100%; margin: 0 auto; background: white; padding: 20px 25px; border: 2px solid #dc2626; border-radius: 8px;">
+
+                    <!-- ENCABEZADO -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 18px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img src="dj michael logo principal.png" alt="DJ Michael" style="height: 55px; width: auto; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('logo-fallback-pdf').style.display='inline-block';" />
+                            <span id="logo-fallback-pdf" style="display: none; font-size: 28px; font-weight: 800; color: #dc2626; letter-spacing: 2px;">DJ MICHAEL</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #475569;">SONIDO • ILUMINACIÓN PROFESIONAL • EFECTOS VISUALES</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-size: 13px; color: #475569;">
+                            <div><strong>REF:</strong> ${ref}</div>
+                            <div style="font-size: 11px; color: #94a3b8;">Emisión: ${emission}</div>
+                        </div>
                     </div>
 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 25px;">
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold; width: 35%;">👤 Cliente</td>
-                            <td style="padding: 10px 0; color: #f1f5f9; font-weight: bold;">${ev.clientName || 'Sin Nombre'}</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📞 Teléfono</td>
-                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.clientPhone || 'Sin Registro'}</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📅 Fecha y Hora</td>
-                            <td style="padding: 10px 0; color: #f1f5f9;">${formatDate(ev.eventDate)} - ${ev.eventTime || '--:--'} hs.</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📍 Lugar / Local</td>
-                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.eventLocation || 'No especificado'}</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">🎉 Tipo de Evento</td>
-                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.eventType || 'Evento'}</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📦 Paquete Contratado</td>
-                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.packageSelected || 'Personalizado'}</td>
-                        </tr>
-                        ${ev.eventNotes ? `
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                            <td style="padding: 10px 0; color: #94a3b8; font-weight: bold;">📝 Observaciones</td>
-                            <td style="padding: 10px 0; color: #f1f5f9;">${ev.eventNotes}</td>
-                        </tr>` : ''}
-                    </table>
+                    <!-- ESTRELLA + ESTADO -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 14px; border-radius: 6px; margin-bottom: 20px;">
+                        <span style="font-size: 18px; font-weight: 700; color: #16a34a;">★ FECHA AGENDADA Y CONFIRMADA</span>
+                        <span style="background: #dc2626; color: white; padding: 2px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; letter-spacing: 1px;">${statusText}</span>
+                    </div>
 
-                    <table style="width: 100%; border-collapse: collapse; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 25px;">
-                        <tr>
-                            <td style="padding: 15px; text-align: center; width: 33.33%;">
-                                <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: 600;">Costo Total</span>
-                                <strong style="font-size: 18px; color: #f1f5f9;">${total.toLocaleString('es-PY')} Gs.</strong>
-                            </td>
-                            <td style="padding: 15px; text-align: center; width: 33.33%; border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);">
-                                <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: 600;">Seña Abonada</span>
-                                <strong style="font-size: 18px; color: #10b981;">${deposit.toLocaleString('es-PY')} Gs.</strong>
-                            </td>
-                            <td style="padding: 15px; text-align: center; width: 33.33%;">
-                                <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; display: block; font-weight: 600;">Saldo Pendiente</span>
-                                <strong style="font-size: 18px; color: #00f2fe;">${saldo.toLocaleString('es-PY')} Gs.</strong>
-                            </td>
-                        </tr>
-                    </table>
+                    <!-- INFORMACIÓN DEL CLIENTE -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; background: #f1f5f9; padding: 14px 18px; border-radius: 6px; margin-bottom: 20px;">
+                        <div><span style="font-weight: 700; color: #475569;">NOMBRE / TITULAR</span><br><span style="font-size: 16px; font-weight: 600;">${ev.clientName || 'Sin nombre'}</span></div>
+                        <div><span style="font-weight: 700; color: #475569;">TELÉFONO DE CONTACTO</span><br><span style="font-size: 16px;">${ev.clientPhone || 'No registrado'}</span></div>
+                        <div style="grid-column: 1 / -1;"><span style="font-weight: 700; color: #475569;">EMISIÓN DE COMPROBANTE</span><br><span>${emission}</span></div>
+                    </div>
 
-                    <div style="text-align: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
-                        <p style="font-size: 16px; font-weight: bold; color: #10b981; margin: 0;">✅ ¡FECHA RESERVADA Y CONFIRMADA!</p>
-                        <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Este comprobante sirve como garantía oficial de reserva.</p>
-                        <p style="font-size: 10px; color: #64748b; margin-top: 8px;">DJ MICHAEL · Música para tus momentos especiales</p>
+                    <!-- DETALLES DEL EVENTO -->
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 10px;">DETALLES DEL EVENTO</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px;">
+                            <div><span style="font-weight: 600; color: #475569;">TIPO DE EVENTO</span><br>${ev.eventType || 'No especificado'}</div>
+                            <div><span style="font-weight: 600; color: #475569;">FECHA Y HORARIO</span><br>${formatDate(ev.eventDate)} — ${ev.eventTime || '--:--'} hs.</div>
+                            <div style="grid-column: 1 / -1;"><span style="font-weight: 600; color: #475569;">LUGAR / UBICACIÓN</span><br>${ev.eventLocation || 'No especificado'}</div>
+                        </div>
+                    </div>
+
+                    <!-- SERVICIO CONTRATADO -->
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 10px;">SERVICIO CONTRATADO Y ESPECIFICACIONES</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; border: 1px solid #e2e8f0;">
+                            <thead>
+                                <tr style="background: #f1f5f9;">
+                                    <th style="padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; width: 20%;">PAQUETE</th>
+                                    <th style="padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; width: 60%;">COBERTURA Y EQUIPAMIENTO INCLUIDO</th>
+                                    <th style="padding: 8px 12px; text-align: right; border-bottom: 1px solid #e2e8f0; width: 20%;">SUBTOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 10px 12px; vertical-align: top; font-weight: 600;">${ev.packageSelected || 'Personalizado'}</td>
+                                    <td style="padding: 10px 12px; vertical-align: top; white-space: pre-line; font-size: 13px;">${cobertura}</td>
+                                    <td style="padding: 10px 12px; text-align: right; font-weight: 700; color: #dc2626;">${total.toLocaleString('es-PY')} Gs.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- MONTOS -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #f8fafc; padding: 14px 18px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #475569; font-weight: 600;">MONTO TOTAL DEL SERVICIO</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #1e293b;">${total.toLocaleString('es-PY')} Gs.</div>
+                        </div>
+                        <div style="text-align: center; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                            <div style="font-size: 12px; color: #475569; font-weight: 600;">SEÑA / ENTREGA INICIAL</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #16a34a;">${deposit.toLocaleString('es-PY')} Gs.</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; color: #475569; font-weight: 600;">SALDO PENDIENTE A ABONAR</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #dc2626;">${saldo.toLocaleString('es-PY')} Gs.</div>
+                        </div>
+                    </div>
+
+                    <!-- TÉRMINOS -->
+                    <div style="margin-bottom: 25px; font-size: 13px; background: #f8fafc; padding: 12px 16px; border-radius: 6px; border-left: 4px solid #dc2626;">
+                        <strong style="color: #1e293b;">TÉRMINOS Y OBSERVACIONES DE LA RESERVA:</strong>
+                        <div style="margin-top: 4px; white-space: pre-line;">${defaultTerms}</div>
+                        ${ev.eventNotes ? `<div style="margin-top: 6px; font-style: italic; color: #475569;"><strong>Notas adicionales:</strong> ${ev.eventNotes}</div>` : ''}
+                    </div>
+
+                    <!-- FIRMAS -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 18px;">
+                        <div>
+                            <div style="font-weight: 600; color: #475569;">${ev.clientName || 'Cliente'}</div>
+                            <div style="border-bottom: 2px solid #94a3b8; width: 80%; margin: 6px 0 4px;"></div>
+                            <div style="font-size: 12px; color: #94a3b8;">Firma de Conformidad del Cliente</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: #475569;">DJ Michael</div>
+                            <div style="border-bottom: 2px solid #94a3b8; width: 80%; margin: 6px 0 4px; margin-left: auto;"></div>
+                            <div style="font-size: 12px; color: #94a3b8;">Servicios Profesionales de Audio & Iluminación</div>
+                        </div>
+                    </div>
+
+                    <!-- PIE -->
+                    <div style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                        ¡Gracias por confiar en nuestros servicios! Hacemos de tus momentos especiales una experiencia inolvidable.
                     </div>
                 </div>
             `;
 
-            // Esperar renderizado
             setTimeout(() => {
                 html2canvas(tempDiv, {
                     scale: 2,
                     useCORS: true,
-                    backgroundColor: '#0b0e14',
-                    width: 680,
+                    backgroundColor: '#ffffff',
+                    width: 700,
                     height: tempDiv.scrollHeight,
                     logging: false,
                     allowTaint: false
@@ -949,7 +1012,7 @@
                     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
                     pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save(`Reserva_${(ev.clientName || 'Reserva').replace(/[^a-zA-Z0-9]/g, '_')}_${formatDate(ev.eventDate)}.pdf`);
+                    pdf.save(`Comprobante_Reserva_${(ev.clientName || 'Reserva').replace(/[^a-zA-Z0-9]/g, '_')}_${formatDate(ev.eventDate)}.pdf`);
 
                     document.body.removeChild(tempDiv);
                     if (btnElement) {
