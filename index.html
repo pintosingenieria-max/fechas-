@@ -1,71 +1,781 @@
-<!-- Formulario Compacto (Todo a la vista) -->
-<form id="eventForm">
-    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); gap: 0.8rem;">
-        <div class="form-group">
-            <label for="clientName"><i class="fa-solid fa-user"></i> Cliente</label>
-            <input type="text" id="clientName" class="form-control" placeholder="Nombre" required />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DJ MICHAEL | Gestión de Eventos & Agenda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --bg-dark: #090a0f;
+            --bg-card: rgba(18, 20, 29, 0.75);
+            --bg-card-hover: rgba(28, 32, 48, 0.9);
+            --primary-red: #ff1e43;
+            --primary-glow: rgba(255, 30, 67, 0.4);
+            --accent-cyan: #00f2fe;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(12, 14, 22, 0.85);
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --badge-green: #10b981;
+            --badge-yellow: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Canvas & Background */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 15% 20%, rgba(255, 30, 67, 0.09) 0%, rgba(0, 0, 0, 0) 60%),
+                        radial-gradient(circle at 85% 80%, rgba(0, 242, 254, 0.07) 0%, rgba(0, 0, 0, 0) 60%),
+                        #090a0f;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-box img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 30, 67, 0.4));
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            font-family: var(--font-heading);
+            letter-spacing: -0.02em;
+        }
+
+        .main-container {
+            max-width: 1320px;
+            margin: 110px auto 4rem;
+            padding: 0 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-family: var(--font-heading);
+            font-weight: 800;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Forms & Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header i {
+            color: var(--primary-red);
+            font-size: 1.3rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.4rem;
+            color: #fff;
+            font-family: var(--font-heading);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 12px rgba(255, 30, 67, 0.25);
+        }
+
+        select.form-control option {
+            background: #141724;
+            color: #fff;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #ff1e43 0%, #d60e2e 100%);
+            color: #fff;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-family: var(--font-body);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(255, 30, 67, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Grid de Eventos Registrados */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .event-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.08);
+        }
+
+        .event-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .event-type-badge {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .event-status {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .status-confirmado {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--badge-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-pendiente {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--badge-yellow);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .event-card-body h3 {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .event-detail-item i {
+            width: 16px;
+            color: var(--primary-red);
+        }
+
+        .event-finance {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .finance-item span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .finance-item strong {
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .finance-saldo strong {
+            color: var(--accent-cyan);
+        }
+
+        .event-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 6px;
+            transition: transform 0.2s;
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.2);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animated"></div>
+    <canvas id="particles-canvas"></canvas>
+
+    <header>
+        <div class="nav-container">
+            <a href="index (61).html" class="logo-box">
+                <img src="dj michael logo principal.png" alt="DJ Michael Logo" />
+                <span class="logo-text">DJ MICHAEL · AGENDA</span>
+            </a>
+            <a href="index (61).html" class="btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Volver a la Web
+            </a>
         </div>
-        <div class="form-group">
-            <label for="clientPhone"><i class="fa-brands fa-whatsapp"></i> Teléfono</label>
-            <input type="tel" id="clientPhone" class="form-control" placeholder="0994608163" required />
+    </header>
+
+    <main class="main-container">
+        <div class="page-header">
+            <div>
+                <h1>Gestor de <span class="gradient-text">Eventos & Fechas</span></h1>
+                <p style="color: var(--text-muted);">Registra contrataciones, señas y coordina la logística de tus shows.</p>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="eventDate"><i class="fa-regular fa-calendar"></i> Fecha</label>
-            <input type="date" id="eventDate" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label for="eventTime"><i class="fa-regular fa-clock"></i> Hora</label>
-            <input type="time" id="eventTime" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label for="eventType"><i class="fa-solid fa-champagne-glasses"></i> Tipo</label>
-            <select id="eventType" class="form-control" required>
-                <option value="15 Años">15 Años</option>
-                <option value="Boda">Boda</option>
-                <option value="Quinta / Privado">Quinta / Privado</option>
-                <option value="Cumpleaños">Cumpleaños</option>
-                <option value="Corporativo">Corporativo</option>
-                <option value="Alquiler Pantalla LED">Alquiler LED</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="packageSelected"><i class="fa-solid fa-box-archive"></i> Paquete</label>
-            <select id="packageSelected" class="form-control" required>
-                <option value="Básico (800.000 Gs.)">Básico</option>
-                <option value="Básico + LED (1.100.000 Gs.)">Básico + LED</option>
-                <option value="Show Exterior (2.800.000 Gs.)">Exterior / Show</option>
-                <option value="Solo Pantalla LED">Solo Pantalla LED</option>
-                <option value="Personalizado">Personalizado</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="eventLocation"><i class="fa-solid fa-location-dot"></i> Lugar / Local</label>
-            <input type="text" id="eventLocation" class="form-control" placeholder="Lugar o Quinta" required />
-        </div>
-        <div class="form-group">
-            <label for="eventStatus"><i class="fa-solid fa-tag"></i> Estado</label>
-            <select id="eventStatus" class="form-control">
-                <option value="Confirmado">Confirmado (Con Seña)</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Finalizado">Finalizado</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="totalCost"><i class="fa-solid fa-money-bill-wave"></i> Total (Gs.)</label>
-            <input type="number" id="totalCost" class="form-control" placeholder="1100000" required />
-        </div>
-        <div class="form-group">
-            <label for="depositAmount"><i class="fa-solid fa-hand-holding-dollar"></i> Seña (Gs.)</label>
-            <input type="number" id="depositAmount" class="form-control" placeholder="300000" value="0" required />
-        </div>
-        <div class="form-group" style="grid-column: span 2;">
-            <label for="eventNotes"><i class="fa-solid fa-note-sticky"></i> Notas / Observaciones</label>
-            <input type="text" id="eventNotes" class="form-control" placeholder="Detalles de sonido, luces, horario..." />
-        </div>
-    </div>
-    <div style="margin-top: 1.2rem; display: flex; justify-content: flex-end;">
-        <button type="submit" class="btn-primary" id="saveBtn" style="padding: 0.75rem 2rem;">
-            <i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase
-        </button>
-    </div>
-</form>
+
+        <section class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-calendar-plus"></i>
+                <h2>Registrar Nuevo Evento</h2>
+            </div>
+            <form id="eventForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="clientName"><i class="fa-solid fa-user"></i> Nombre del Cliente</label>
+                        <input type="text" id="clientName" class="form-control" placeholder="Ej. Juan Pérez" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPhone"><i class="fa-brands fa-whatsapp"></i> Teléfono / WhatsApp</label>
+                        <input type="tel" id="clientPhone" class="form-control" placeholder="Ej. 0994608163" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate"><i class="fa-regular fa-calendar"></i> Fecha del Evento</label>
+                        <input type="date" id="eventDate" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime"><i class="fa-regular fa-clock"></i> Hora de Inicio</label>
+                        <input type="time" id="eventTime" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="eventType"><i class="fa-solid fa-champagne-glasses"></i> Tipo de Evento</label>
+                        <select id="eventType" class="form-control" required>
+                            <option value="15 Años">Fiesta de 15 Años</option>
+                            <option value="Boda">Boda / Casamiento</option>
+                            <option value="Quinta / Privado">Fiesta en Quinta / Privado</option>
+                            <option value="Cumpleaños">Cumpleaños Infantil / Adulto</option>
+                            <option value="Corporativo">Evento Corporativo</option>
+                            <option value="Alquiler Pantalla LED">Alquiler de Pantalla LED</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="packageSelected"><i class="fa-solid fa-box-archive"></i> Paquete / Servicio</label>
+                        <select id="packageSelected" class="form-control" required>
+                            <option value="Básico (800.000 Gs.)">Equipo Básico</option>
+                            <option value="Básico + LED (1.100.000 Gs.)">Básico + Pantalla LED</option>
+                            <option value="Show Exterior (2.800.000 Gs.)">Equipo Exterior / Show</option>
+                            <option value="Solo Pantalla LED">Solo Pantalla LED</option>
+                            <option value="Personalizado">Paquete Personalizado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventLocation"><i class="fa-solid fa-location-dot"></i> Lugar / Local / Quinta</label>
+                        <input type="text" id="eventLocation" class="form-control" placeholder="Ej. Quinta Las Palmas, Villeta" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="totalCost"><i class="fa-solid fa-money-bill-wave"></i> Costo Total (Gs.)</label>
+                        <input type="number" id="totalCost" class="form-control" placeholder="1100000" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="depositAmount"><i class="fa-solid fa-hand-holding-dollar"></i> Seña Abonada (Gs.)</label>
+                        <input type="number" id="depositAmount" class="form-control" placeholder="300000" value="0" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStatus"><i class="fa-solid fa-tag"></i> Estado</label>
+                        <select id="eventStatus" class="form-control">
+                            <option value="Confirmado">Confirmado (Con Seña)</option>
+                            <option value="Pendiente">Pendiente de Reserva</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="eventNotes"><i class="fa-solid fa-clipboard-list"></i> Observaciones / Requisitos de Sonido y Luces</label>
+                        <textarea id="eventNotes" class="form-control" rows="2" placeholder="Detalles de montaje, horario de prueba de sonido, pistas requeridas, etc."></textarea>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="submit" class="btn-primary" id="saveBtn">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section>
+            <div class="card-header" style="border:none; padding:0; margin-bottom:1rem;">
+                <i class="fa-solid fa-list-check"></i>
+                <h2>Agenda de Eventos</h2>
+            </div>
+            <div class="filter-bar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" class="form-control" placeholder="🔍 Buscar por cliente o lugar..." />
+                </div>
+                <select id="statusFilter" class="form-control" style="width: auto; min-width: 180px;">
+                    <option value="TODOS">Todos los Estados</option>
+                    <option value="Confirmado">Confirmados</option>
+                    <option value="Pendiente">Pendientes</option>
+                    <option value="Finalizado">Finalizados</option>
+                </select>
+            </div>
+
+            <div class="events-grid" id="eventsContainer">
+                <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                    <p style="margin-top: 1rem;">Cargando agenda de eventos...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const CONFIG = {
+            FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'
+        };
+
+        const eventForm = document.getElementById('eventForm');
+        const eventsContainer = document.getElementById('eventsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+
+        let localEvents = {};
+
+        // 1. CARGAR EVENTOS DESDE FIREBASE
+        function fetchEvents() {
+            fetch(CONFIG.FIREBASE_URL + 'eventos.json')
+                .then(res => res.json())
+                .then(data => {
+                    localEvents = data || {};
+                    renderEvents();
+                })
+                .catch(err => {
+                    console.error("Error al cargar eventos:", err);
+                    eventsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al conectar con la base de datos.</div>`;
+                });
+        }
+
+        // 2. RENDERIZAR EVENTOS
+        function renderEvents() {
+            const query = searchInput.value.toLowerCase().trim();
+            const filter = statusFilter.value;
+            const keys = Object.keys(localEvents);
+
+            if (keys.length === 0) {
+                eventsContainer.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem; margin-bottom: 1rem; display:block;"></i>
+                        No hay eventos registrados en la agenda.
+                    </div>
+                `;
+                return;
+            }
+
+            let filteredKeys = keys.filter(k => {
+                const ev = localEvents[k];
+                const matchSearch = ev.clientName.toLowerCase().includes(query) || ev.eventLocation.toLowerCase().includes(query);
+                const matchFilter = (filter === 'TODOS') || (ev.eventStatus === filter);
+                return matchSearch && matchFilter;
+            });
+
+            // Ordenar por fecha ascendente
+            filteredKeys.sort((a, b) => new Date(localEvents[a].eventDate) - new Date(localEvents[b].eventDate));
+
+            if (filteredKeys.length === 0) {
+                eventsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">No coinciden eventos con tu búsqueda.</div>`;
+                return;
+            }
+
+            let html = '';
+            filteredKeys.forEach(key => {
+                const ev = localEvents[key];
+                const total = Number(ev.totalCost) || 0;
+                const deposit = Number(ev.depositAmount) || 0;
+                const saldo = total - deposit;
+                const statusClass = ev.eventStatus === 'Confirmado' ? 'status-confirmado' : 'status-pendiente';
+
+                html += `
+                    <div class="event-card">
+                        <div>
+                            <div class="event-card-header">
+                                <span class="event-type-badge">${ev.eventType}</span>
+                                <span class="event-status ${statusClass}">${ev.eventStatus}</span>
+                            </div>
+                            <div class="event-card-body" style="margin-top: 0.8rem;">
+                                <h3>${ev.clientName}</h3>
+                                <div class="event-detail-item">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    <span>${formatDate(ev.eventDate)} · ${ev.eventTime} hs.</span>
+                                </div>
+                                <div class="event-detail-item">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>${ev.eventLocation}</span>
+                                </div>
+                                <div class="event-detail-item">
+                                    <i class="fa-solid fa-cube"></i>
+                                    <span>${ev.packageSelected}</span>
+                                </div>
+                                ${ev.eventNotes ? `
+                                <div class="event-detail-item" style="align-items: flex-start;">
+                                    <i class="fa-solid fa-note-sticky" style="margin-top: 4px;"></i>
+                                    <span style="font-size: 0.85rem; color: #cbd5e1;">${ev.eventNotes}</span>
+                                </div>` : ''}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="event-finance">
+                                <div class="finance-item">
+                                    <span>Total</span>
+                                    <strong>${total.toLocaleString('es-PY')} Gs.</strong>
+                                </div>
+                                <div class="finance-item">
+                                    <span>Seña</span>
+                                    <strong style="color: #10b981;">${deposit.toLocaleString('es-PY')} Gs.</strong>
+                                </div>
+                                <div class="finance-item finance-saldo" style="grid-column: 1 / -1; border-top: 1px solid var(--border-color); padding-top: 4px;">
+                                    <span>Saldo Pendiente</span>
+                                    <strong>${saldo.toLocaleString('es-PY')} Gs.</strong>
+                                </div>
+                            </div>
+
+                            <div class="event-actions">
+                                <a href="https://wa.me/595${cleanPhone(ev.clientPhone)}?text=Hola%20${encodeURIComponent(ev.clientName)},%20te%20contacto%20de%20DJ%20Michael%20por%20tu%20evento%20del%20${ev.eventDate}" target="_blank" class="btn-secondary">
+                                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp
+                                </a>
+                                <button class="btn-delete" onclick="deleteEvent('${key}')" title="Eliminar Evento">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            eventsContainer.innerHTML = html;
+        }
+
+        // 3. GUARDAR NUEVO EVENTO
+        eventForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('saveBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+            const newEvent = {
+                clientName: document.getElementById('clientName').value.trim(),
+                clientPhone: document.getElementById('clientPhone').value.trim(),
+                eventDate: document.getElementById('eventDate').value,
+                eventTime: document.getElementById('eventTime').value,
+                eventType: document.getElementById('eventType').value,
+                packageSelected: document.getElementById('packageSelected').value,
+                eventLocation: document.getElementById('eventLocation').value.trim(),
+                totalCost: Number(document.getElementById('totalCost').value),
+                depositAmount: Number(document.getElementById('depositAmount').value),
+                eventStatus: document.getElementById('eventStatus').value,
+                eventNotes: document.getElementById('eventNotes').value.trim(),
+                createdAt: new Date().toISOString()
+            };
+
+            fetch(CONFIG.FIREBASE_URL + 'eventos.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newEvent)
+            })
+            .then(res => res.json())
+            .then(() => {
+                eventForm.reset();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase';
+                fetchEvents();
+            })
+            .catch(err => {
+                alert('Error al guardar: ' + err.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase';
+            });
+        });
+
+        // 4. ELIMINAR EVENTO
+        window.deleteEvent = function(key) {
+            if (!confirm('¿Estás seguro de eliminar este evento de la base de datos?')) return;
+
+            fetch(`${CONFIG.FIREBASE_URL}eventos/${key}.json`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                delete localEvents[key];
+                renderEvents();
+            })
+            .catch(err => alert('Error al eliminar: ' + err.message));
+        };
+
+        // Helpers
+        function cleanPhone(phone) {
+            return phone.replace(/\D/g, '').replace(/^0/, '');
+        }
+
+        function formatDate(str) {
+            if (!str) return '';
+            const parts = str.split('-');
+            if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            return str;
+        }
+
+        searchInput.addEventListener('input', renderEvents);
+        statusFilter.addEventListener('change', renderEvents);
+
+        // 5. FONDO DE PARTÍCULAS
+        (function() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 3 + 1;
+                    this.speedY = Math.random() * 1.5 + 0.5;
+                    this.opacity = Math.random() * 0.5 + 0.1;
+                }
+                update() {
+                    this.y += this.speedY;
+                    if (this.y > height) {
+                        this.y = -10;
+                        this.x = Math.random() * width;
+                    }
+                }
+                draw(ctx) {
+                    ctx.fillStyle = `rgba(255, 30, 67, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => { p.update(); p.draw(ctx); });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        document.addEventListener('DOMContentLoaded', fetchEvents);
+    </script>
+</body>
+</html>
