@@ -1,0 +1,71 @@
+<!-- Formulario Compacto (Todo a la vista) -->
+<form id="eventForm">
+    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); gap: 0.8rem;">
+        <div class="form-group">
+            <label for="clientName"><i class="fa-solid fa-user"></i> Cliente</label>
+            <input type="text" id="clientName" class="form-control" placeholder="Nombre" required />
+        </div>
+        <div class="form-group">
+            <label for="clientPhone"><i class="fa-brands fa-whatsapp"></i> Teléfono</label>
+            <input type="tel" id="clientPhone" class="form-control" placeholder="0994608163" required />
+        </div>
+        <div class="form-group">
+            <label for="eventDate"><i class="fa-regular fa-calendar"></i> Fecha</label>
+            <input type="date" id="eventDate" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="eventTime"><i class="fa-regular fa-clock"></i> Hora</label>
+            <input type="time" id="eventTime" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="eventType"><i class="fa-solid fa-champagne-glasses"></i> Tipo</label>
+            <select id="eventType" class="form-control" required>
+                <option value="15 Años">15 Años</option>
+                <option value="Boda">Boda</option>
+                <option value="Quinta / Privado">Quinta / Privado</option>
+                <option value="Cumpleaños">Cumpleaños</option>
+                <option value="Corporativo">Corporativo</option>
+                <option value="Alquiler Pantalla LED">Alquiler LED</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="packageSelected"><i class="fa-solid fa-box-archive"></i> Paquete</label>
+            <select id="packageSelected" class="form-control" required>
+                <option value="Básico (800.000 Gs.)">Básico</option>
+                <option value="Básico + LED (1.100.000 Gs.)">Básico + LED</option>
+                <option value="Show Exterior (2.800.000 Gs.)">Exterior / Show</option>
+                <option value="Solo Pantalla LED">Solo Pantalla LED</option>
+                <option value="Personalizado">Personalizado</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="eventLocation"><i class="fa-solid fa-location-dot"></i> Lugar / Local</label>
+            <input type="text" id="eventLocation" class="form-control" placeholder="Lugar o Quinta" required />
+        </div>
+        <div class="form-group">
+            <label for="eventStatus"><i class="fa-solid fa-tag"></i> Estado</label>
+            <select id="eventStatus" class="form-control">
+                <option value="Confirmado">Confirmado (Con Seña)</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Finalizado">Finalizado</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="totalCost"><i class="fa-solid fa-money-bill-wave"></i> Total (Gs.)</label>
+            <input type="number" id="totalCost" class="form-control" placeholder="1100000" required />
+        </div>
+        <div class="form-group">
+            <label for="depositAmount"><i class="fa-solid fa-hand-holding-dollar"></i> Seña (Gs.)</label>
+            <input type="number" id="depositAmount" class="form-control" placeholder="300000" value="0" required />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+            <label for="eventNotes"><i class="fa-solid fa-note-sticky"></i> Notas / Observaciones</label>
+            <input type="text" id="eventNotes" class="form-control" placeholder="Detalles de sonido, luces, horario..." />
+        </div>
+    </div>
+    <div style="margin-top: 1.2rem; display: flex; justify-content: flex-end;">
+        <button type="submit" class="btn-primary" id="saveBtn" style="padding: 0.75rem 2rem;">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar en Firebase
+        </button>
+    </div>
+</form>
