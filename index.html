@@ -451,6 +451,153 @@
             color: var(--accent-cyan);
         }
 
+        /* ====== MODAL RECIBO ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 820px;
+            width: 100%;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+            animation: fadeInUp 0.3s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: scale(0.96) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border-radius: 20px 20px 0 0;
+            flex-shrink: 0;
+        }
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .modal-header button {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: 0.2s;
+            line-height: 1;
+        }
+        .modal-header button:hover {
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+            background: #f1f5f9;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f8fafc;
+            border-radius: 0 0 20px 20px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .modal-footer .btn-primary {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+        }
+        .modal-footer .btn-primary:hover {
+            box-shadow: 0 6px 25px rgba(22, 163, 74, 0.6);
+        }
+        .modal-footer .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+            border-color: #cbd5e1;
+        }
+        .modal-footer .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        /* Estilo del recibo dentro del modal */
+        .receipt-preview {
+            background: white;
+            padding: 30px 35px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1e293b;
+        }
+        .receipt-preview .editable-input {
+            border: 1px dashed #94a3b8;
+            background: #f8fafc;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: inherit;
+            font-family: inherit;
+            color: inherit;
+            width: 140px;
+            text-align: right;
+        }
+        .receipt-preview .editable-input:focus {
+            outline: 2px solid #dc2626;
+            border-color: transparent;
+            background: #fff;
+        }
+        .receipt-preview .editable-input-sm {
+            width: 100px;
+        }
+        .receipt-preview table .editable-input {
+            width: 90px;
+            font-size: 13px;
+            padding: 2px 6px;
+        }
+
+        .btn-recalc {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        .btn-recalc:hover {
+            background: #cbd5e1;
+        }
+
         @media (max-width: 992px) {
             .form-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -463,6 +610,13 @@
             }
             .form-group[style*="span 2"] {
                 grid-column: span 1 !important;
+            }
+            .modal-box {
+                max-height: 98vh;
+                border-radius: 12px;
+            }
+            .receipt-preview {
+                padding: 16px;
             }
         }
     </style>
@@ -603,6 +757,24 @@
         </section>
     </main>
 
+    <!-- MODAL RECIBO -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-regular fa-receipt" style="color: #dc2626;"></i> Vista previa del Recibo</h3>
+                <button id="closeReceiptModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="receiptModalBody">
+                <!-- Aquí se inyecta el recibo dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="updateReceiptBtn"><i class="fa-regular fa-rotate-right"></i> Actualizar vista</button>
+                <button class="btn-secondary" id="closeReceiptModalFooterBtn">Cerrar</button>
+                <button class="btn-primary" id="downloadReceiptPdfBtn"><i class="fa-regular fa-file-pdf"></i> Descargar PDF</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ========== CONFIGURACIÓN ==========
         const CONFIG = {
@@ -620,6 +792,7 @@
 
         let localEvents = {};
         let editingKey = null;
+        let currentReceiptKey = null; // para saber qué evento estamos editando en el modal
 
         // ========== FUNCIONES PRINCIPALES ==========
 
@@ -751,8 +924,8 @@
                                 <button class="btn-secondary" onclick="generarPDF('${key}', this)">
                                     <i class="fa-regular fa-file-pdf"></i> PDF
                                 </button>
-                                <!-- Botón Recibo -->
-                                <button class="btn-secondary" onclick="generarRecibo('${key}', this)" style="color: #f59e0b;">
+                                <!-- Botón Recibo (mejorado) -->
+                                <button class="btn-secondary" onclick="abrirModalRecibo('${key}', this)" style="color: #f59e0b;">
                                     <i class="fa-regular fa-receipt"></i> Recibo
                                 </button>
                                 <button class="btn-secondary" onclick="editEvent('${key}')" style="color: var(--accent-cyan);">
@@ -916,7 +1089,7 @@
             });
         };
 
-        // ========== GENERAR PDF (COMPROBANTE DE RESERVA) - con logo como texto ==========
+        // ========== GENERAR PDF (COMPROBANTE DE RESERVA) ==========
         window.generarPDF = function(key, btnElement) {
             const ev = localEvents[key];
             if (!ev) {
@@ -991,7 +1164,7 @@
             tempDiv.innerHTML = `
                 <div style="max-width: 100%; margin: 0 auto; background: white; padding: 20px 25px; border: 2px solid #dc2626; border-radius: 8px;">
 
-                    <!-- ENCABEZADO con logo como texto -->
+                    <!-- ENCABEZADO -->
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 18px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div>
@@ -1127,126 +1300,56 @@
             }, 400);
         };
 
-        // ========== GENERAR RECIBO (con tabla de servicios) - logo como texto ==========
-        window.generarRecibo = function(key, btnElement) {
+        // ========== NUEVO: ABRIR MODAL DE RECIBO (EDITABLE Y PREVIEW) ==========
+        window.abrirModalRecibo = function(key, btnElement) {
             const ev = localEvents[key];
             if (!ev) {
                 alert('Evento no encontrado.');
                 return;
             }
+            currentReceiptKey = key;
+            renderizarReciboEnModal(ev);
+            document.getElementById('receiptModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
 
-            if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
-                alert('Las librerías html2canvas o jsPDF no se cargaron correctamente.');
-                return;
-            }
-
-            const originalText = btnElement ? btnElement.innerHTML : '';
-            if (btnElement) {
-                btnElement.disabled = true;
-                btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
-            }
-
+        function renderizarReciboEnModal(ev) {
+            const container = document.getElementById('receiptModalBody');
             const total = Number(ev.totalCost) || 0;
             const deposit = Number(ev.depositAmount) || 0;
             const saldo = total - deposit;
             const ruc = '5209576-2';
-
             const now = new Date();
             const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
             const monthName = months[now.getMonth()];
 
+            // Construir servicios
             let servicios = [];
             const packageName = ev.packageSelected || 'Personalizado';
-
             if (packageName.includes('Básico')) {
-                servicios.push({
-                    desc: 'Alquiler de Sonido PA (2 Subwoofers 18", 2 Line Array, operador)',
-                    precioNormal: 800000,
-                    descuento: 0,
-                    precioAcordado: 800000
-                });
-                if (ev.eventNotes) {
-                    servicios.push({
-                        desc: 'Servicios adicionales: ' + ev.eventNotes,
-                        precioNormal: 0,
-                        descuento: 0,
-                        precioAcordado: 0
-                    });
-                }
+                servicios.push({ desc: 'Alquiler de Sonido PA (2 Subwoofers 18", 2 Line Array, operador)', precioNormal: 800000, descuento: 0, precioAcordado: 800000 });
+                if (ev.eventNotes) servicios.push({ desc: 'Servicios adicionales: ' + ev.eventNotes, precioNormal: 0, descuento: 0, precioAcordado: 0 });
             } else if (packageName.includes('LED')) {
-                servicios.push({
-                    desc: 'Alquiler de Sonido PA + Pantalla LED (incluye operador)',
-                    precioNormal: 1100000,
-                    descuento: 0,
-                    precioAcordado: 1100000
-                });
-                if (ev.eventNotes) {
-                    servicios.push({
-                        desc: 'Servicios adicionales: ' + ev.eventNotes,
-                        precioNormal: 0,
-                        descuento: 0,
-                        precioAcordado: 0
-                    });
-                }
+                servicios.push({ desc: 'Alquiler de Sonido PA + Pantalla LED (incluye operador)', precioNormal: 1100000, descuento: 0, precioAcordado: 1100000 });
+                if (ev.eventNotes) servicios.push({ desc: 'Servicios adicionales: ' + ev.eventNotes, precioNormal: 0, descuento: 0, precioAcordado: 0 });
             } else if (packageName.includes('Show Exterior')) {
-                servicios.push({
-                    desc: 'Alquiler de Sonido de Gran Potencia (8 Subwoofers, 6 Line Array, staff)',
-                    precioNormal: 2800000,
-                    descuento: 0,
-                    precioAcordado: 2800000
-                });
-                if (ev.eventNotes) {
-                    servicios.push({
-                        desc: 'Servicios adicionales: ' + ev.eventNotes,
-                        precioNormal: 0,
-                        descuento: 0,
-                        precioAcordado: 0
-                    });
-                }
+                servicios.push({ desc: 'Alquiler de Sonido de Gran Potencia (8 Subwoofers, 6 Line Array, staff)', precioNormal: 2800000, descuento: 0, precioAcordado: 2800000 });
+                if (ev.eventNotes) servicios.push({ desc: 'Servicios adicionales: ' + ev.eventNotes, precioNormal: 0, descuento: 0, precioAcordado: 0 });
             } else if (packageName.includes('Solo Pantalla LED')) {
-                servicios.push({
-                    desc: 'Alquiler de Pantalla LED (montaje y contenido personalizado)',
-                    precioNormal: 1200000,
-                    descuento: 0,
-                    precioAcordado: 1200000
-                });
-                if (ev.eventNotes) {
-                    servicios.push({
-                        desc: 'Servicios adicionales: ' + ev.eventNotes,
-                        precioNormal: 0,
-                        descuento: 0,
-                        precioAcordado: 0
-                    });
-                }
+                servicios.push({ desc: 'Alquiler de Pantalla LED (montaje y contenido personalizado)', precioNormal: 1200000, descuento: 0, precioAcordado: 1200000 });
+                if (ev.eventNotes) servicios.push({ desc: 'Servicios adicionales: ' + ev.eventNotes, precioNormal: 0, descuento: 0, precioAcordado: 0 });
             } else {
-                servicios.push({
-                    desc: 'Servicio profesional de audio e iluminación (Personalizado)',
-                    precioNormal: total,
-                    descuento: 0,
-                    precioAcordado: total
-                });
-                if (ev.eventNotes) {
-                    servicios.push({
-                        desc: 'Observaciones: ' + ev.eventNotes,
-                        precioNormal: 0,
-                        descuento: 0,
-                        precioAcordado: 0
-                    });
-                }
+                servicios.push({ desc: 'Servicio profesional de audio e iluminación (Personalizado)', precioNormal: total, descuento: 0, precioAcordado: total });
+                if (ev.eventNotes) servicios.push({ desc: 'Observaciones: ' + ev.eventNotes, precioNormal: 0, descuento: 0, precioAcordado: 0 });
             }
 
-            let sumaPreciosNormales = 0;
-            let descuentoTotal = 0;
-            servicios.forEach(s => {
-                sumaPreciosNormales += s.precioNormal;
-                descuentoTotal += s.descuento;
-            });
-            if (sumaPreciosNormales !== total && servicios.length > 0) {
-                const diff = total - sumaPreciosNormales;
-                servicios[0].precioNormal += diff;
+            // Ajuste para que la suma de precios acordados coincida con total
+            let sumaAcordados = servicios.reduce((acc, s) => acc + s.precioAcordado, 0);
+            if (sumaAcordados !== total && servicios.length > 0) {
+                const diff = total - sumaAcordados;
                 servicios[0].precioAcordado += diff;
-                sumaPreciosNormales = total;
+                servicios[0].precioNormal += diff;
             }
 
             let tablaHtml = `
@@ -1261,13 +1364,19 @@
                     </thead>
                     <tbody>
             `;
-            servicios.forEach(s => {
+            servicios.forEach((s, idx) => {
                 tablaHtml += `
                     <tr>
                         <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0;">${s.desc}</td>
-                        <td style="padding: 8px 10px; text-align: right; border-bottom: 1px solid #e2e8f0;">${s.precioNormal.toLocaleString('es-PY')} Gs.</td>
-                        <td style="padding: 8px 10px; text-align: right; border-bottom: 1px solid #e2e8f0;">${s.descuento.toLocaleString('es-PY')} Gs.</td>
-                        <td style="padding: 8px 10px; text-align: right; border-bottom: 1px solid #e2e8f0;">${s.precioAcordado.toLocaleString('es-PY')} Gs.</td>
+                        <td style="padding: 8px 10px; text-align: right; border-bottom: 1px solid #e2e8f0;">
+                            <input class="editable-input editable-input-sm" type="number" data-row="${idx}" data-field="precioNormal" value="${s.precioNormal}" step="1000" />
+                        </td>
+                        <td style="padding: 8px 10px; text-align: right; border-bottom: 1px solid #e2e8f0;">
+                            <input class="editable-input editable-input-sm" type="number" data-row="${idx}" data-field="descuento" value="${s.descuento}" step="1000" />
+                        </td>
+                        <td style="padding: 8px 10px; text-align: right; border-bottom: 1px solid #e2e8f0;">
+                            <input class="editable-input editable-input-sm" type="number" data-row="${idx}" data-field="precioAcordado" value="${s.precioAcordado}" step="1000" />
+                        </td>
                     </tr>
                 `;
             });
@@ -1276,119 +1385,201 @@
                 </table>
             `;
 
-            const sumaNormal = servicios.reduce((acc, s) => acc + s.precioNormal, 0);
-            const descTotal = servicios.reduce((acc, s) => acc + s.descuento, 0);
-            const totalCobrado = total;
+            const html = `
+                <div id="receiptPreview" class="receipt-preview">
+                    <div style="max-width: 100%; margin: 0 auto; background: white; padding: 10px 0;">
 
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.top = '0';
-            tempDiv.style.left = '0';
-            tempDiv.style.width = '700px';
-            tempDiv.style.background = '#ffffff';
-            tempDiv.style.padding = '30px';
-            tempDiv.style.borderRadius = '0';
-            tempDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.3)';
-            tempDiv.style.zIndex = '99999';
-            tempDiv.style.opacity = '1';
-            tempDiv.style.pointerEvents = 'none';
-            tempDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
-            tempDiv.style.color = '#1e293b';
-            tempDiv.style.border = '1px solid #e2e8f0';
-            document.body.appendChild(tempDiv);
+                        <!-- ENCABEZADO -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 18px;">
+                            <div>
+                                <div style="font-size: 24px; font-weight: 800; color: #dc2626; letter-spacing: 1px;">DJ MICHAEL</div>
+                                <div style="font-size: 14px; font-weight: 700; color: #1e293b;">MP INGENIERÍA Y PRODUCCIÓN</div>
+                                <div style="font-size: 13px; color: #475569;">Sonido, Luces y Pantallas LED | Servicios Profesionales para Espectáculos</div>
+                            </div>
+                            <div style="text-align: right; font-size: 13px; color: #475569;">
+                                <div><strong>RUC:</strong> ${ruc}</div>
+                            </div>
+                        </div>
 
-            tempDiv.innerHTML = `
-                <div style="max-width: 100%; margin: 0 auto; background: white; padding: 25px 30px; border: 2px solid #dc2626; border-radius: 8px;">
+                        <!-- TÍTULO Y FECHA -->
+                        <div style="margin-bottom: 20px;">
+                            <h2 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">Comprobante de Servicio / Recibo</h2>
+                            <div style="font-size: 14px; color: #475569;">
+                                <strong>Fecha:</strong> ${dateStr}
+                            </div>
+                            <div style="font-size: 14px; color: #475569;">
+                                <strong>Concepto:</strong> ${ev.eventType || 'Evento'} - ${ev.clientName || 'Cliente'}
+                            </div>
+                            <div style="font-size: 14px; color: #475569;">
+                                <strong>Lugar:</strong> ${ev.eventLocation || 'No especificado'}
+                            </div>
+                        </div>
 
-                    <!-- ENCABEZADO con logo como texto -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 18px;">
-                        <div>
-                            <div style="font-size: 24px; font-weight: 800; color: #dc2626; letter-spacing: 1px;">DJ MICHAEL</div>
-                            <div style="font-size: 14px; font-weight: 700; color: #1e293b;">MP INGENIERÍA Y PRODUCCIÓN</div>
-                            <div style="font-size: 13px; color: #475569;">Sonido, Luces y Pantallas LED | Servicios Profesionales para Espectáculos</div>
+                        <!-- TABLA DE SERVICIOS (EDITABLE) -->
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 10px;">Detalle de Servicios</h3>
+                            ${tablaHtml}
                         </div>
-                        <div style="text-align: right; font-size: 13px; color: #475569;">
-                            <div><strong>RUC:</strong> ${ruc}</div>
-                        </div>
-                    </div>
 
-                    <!-- TÍTULO Y FECHA -->
-                    <div style="margin-bottom: 20px;">
-                        <h2 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">Comprobante de Servicio / Recibo</h2>
-                        <div style="font-size: 14px; color: #475569;">
-                            <strong>Fecha:</strong> ${dateStr}
+                        <!-- RESUMEN DE MONTOS (EDITABLE) -->
+                        <div style="display: flex; justify-content: flex-end; gap: 30px; background: #f8fafc; padding: 12px 18px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px; flex-wrap: wrap;">
+                            <div>
+                                <div style="font-size: 13px; color: #475569;">Total (Gs.):</div>
+                                <input id="editTotalCost" class="editable-input" type="number" value="${total}" step="1000" style="width: 140px;" />
+                            </div>
+                            <div>
+                                <div style="font-size: 13px; color: #475569;">Seña abonada (Gs.):</div>
+                                <input id="editDepositAmount" class="editable-input" type="number" value="${deposit}" step="1000" style="width: 140px;" />
+                            </div>
+                            <div>
+                                <div style="font-size: 13px; color: #475569;">Saldo pendiente:</div>
+                                <div id="editSaldoDisplay" style="font-size: 20px; font-weight: 700; color: #dc2626;">${(total - deposit).toLocaleString('es-PY')} Gs.</div>
+                            </div>
                         </div>
-                        <div style="font-size: 14px; color: #475569;">
-                            <strong>Concepto:</strong> ${ev.eventType || 'Evento'} - ${ev.clientName || 'Cliente'}
-                        </div>
-                        <div style="font-size: 14px; color: #475569;">
-                            <strong>Lugar:</strong> ${ev.eventLocation || 'No especificado'}
-                        </div>
-                    </div>
 
-                    <!-- TABLA DE SERVICIOS -->
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 10px;">Detalle de Servicios</h3>
-                        ${tablaHtml}
-                    </div>
+                        <!-- OBSERVACIONES EDITABLE -->
+                        <div style="margin-top: 16px;">
+                            <label style="font-weight: 600; color: #1e293b; font-size: 14px;">Observaciones adicionales:</label>
+                            <input id="editEventNotes" class="form-control" style="background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; margin-top: 4px;" value="${ev.eventNotes || ''}" placeholder="Notas adicionales para el recibo..." />
+                        </div>
 
-                    <!-- RESUMEN DE MONTOS -->
-                    <div style="display: flex; justify-content: flex-end; gap: 30px; background: #f8fafc; padding: 12px 18px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
-                        <div>
-                            <div style="font-size: 13px; color: #475569;">Suma Precios Normales:</div>
-                            <div style="font-size: 18px; font-weight: 700;">${sumaNormal.toLocaleString('es-PY')} Gs.</div>
+                        <!-- PIE -->
+                        <div style="text-align: center; font-size: 13px; color: #475569; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                            <p style="font-style: italic;">¡Gracias por confiar en nuestros servicios profesionales!</p>
+                            <p style="font-size: 12px; color: #94a3b8;">Villeta, Paraguay</p>
                         </div>
-                        <div>
-                            <div style="font-size: 13px; color: #475569;">Descuento Total:</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #dc2626;">- ${descTotal.toLocaleString('es-PY')} Gs.</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 13px; color: #475569;">TOTAL COBRADO:</div>
-                            <div style="font-size: 22px; font-weight: 700; color: #16a34a;">${totalCobrado.toLocaleString('es-PY')} Gs.</div>
-                        </div>
-                    </div>
-
-                    <!-- PIE -->
-                    <div style="text-align: center; font-size: 13px; color: #475569; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-                        <p style="font-style: italic;">¡Gracias por confiar en nuestros servicios profesionales!</p>
-                        <p style="font-size: 12px; color: #94a3b8;">Villeta, Paraguay</p>
                     </div>
                 </div>
             `;
+            container.innerHTML = html;
 
-            setTimeout(() => {
-                html2canvas(tempDiv, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    width: 700,
-                    height: tempDiv.scrollHeight,
-                    logging: false,
-                    allowTaint: false
-                }).then(canvas => {
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                    const pdfWidth = 210;
-                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save(`Recibo_${(ev.clientName || 'Cliente').replace(/[^a-zA-Z0-9]/g, '_')}_${formatDate(ev.eventDate)}.pdf`);
-                    document.body.removeChild(tempDiv);
-                    if (btnElement) {
-                        btnElement.disabled = false;
-                        btnElement.innerHTML = originalText;
+            // Añadir listener para actualizar saldo en tiempo real al cambiar los inputs
+            document.querySelectorAll('#editTotalCost, #editDepositAmount').forEach(el => {
+                el.addEventListener('input', actualizarSaldoRecibo);
+            });
+            // También al cambiar los precios de la tabla
+            document.querySelectorAll('#receiptPreview .editable-input').forEach(el => {
+                el.addEventListener('input', actualizarSaldoRecibo);
+            });
+        }
+
+        function actualizarSaldoRecibo() {
+            const totalInput = document.getElementById('editTotalCost');
+            const depositInput = document.getElementById('editDepositAmount');
+            if (!totalInput || !depositInput) return;
+            const total = Number(totalInput.value) || 0;
+            const deposit = Number(depositInput.value) || 0;
+            const saldo = total - deposit;
+            const display = document.getElementById('editSaldoDisplay');
+            if (display) {
+                display.textContent = saldo.toLocaleString('es-PY') + ' Gs.';
+                display.style.color = saldo < 0 ? '#ef4444' : '#dc2626';
+            }
+        }
+
+        // ========== CERRAR MODAL ==========
+        function cerrarModalRecibo() {
+            document.getElementById('receiptModal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentReceiptKey = null;
+        }
+
+        document.getElementById('closeReceiptModalBtn').addEventListener('click', cerrarModalRecibo);
+        document.getElementById('closeReceiptModalFooterBtn').addEventListener('click', cerrarModalRecibo);
+        document.getElementById('receiptModal').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalRecibo();
+        });
+
+        // ========== ACTUALIZAR VISTA DEL RECIBO ==========
+        document.getElementById('updateReceiptBtn').addEventListener('click', function() {
+            const key = currentReceiptKey;
+            if (!key || !localEvents[key]) {
+                alert('No se encontró el evento.');
+                return;
+            }
+            // Obtener valores editados del modal
+            const totalInput = document.getElementById('editTotalCost');
+            const depositInput = document.getElementById('editDepositAmount');
+            const notesInput = document.getElementById('editEventNotes');
+            if (!totalInput || !depositInput || !notesInput) return;
+
+            const newTotal = Number(totalInput.value) || 0;
+            const newDeposit = Number(depositInput.value) || 0;
+            const newNotes = notesInput.value.trim();
+
+            // Actualizar el objeto local (solo para la vista previa, no se guarda en Firebase aún)
+            const ev = localEvents[key];
+            ev.totalCost = newTotal;
+            ev.depositAmount = newDeposit;
+            ev.eventNotes = newNotes;
+
+            // Re-renderizar el modal
+            renderizarReciboEnModal(ev);
+        });
+
+        // ========== DESCARGAR PDF DEL RECIBO (MULTIPÁGINA) ==========
+        document.getElementById('downloadReceiptPdfBtn').addEventListener('click', function() {
+            const preview = document.getElementById('receiptPreview');
+            if (!preview) {
+                alert('No hay vista previa para descargar.');
+                return;
+            }
+
+            // Capturar el contenido del recibo
+            html2canvas(preview, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                allowTaint: false,
+                width: preview.scrollWidth,
+                height: preview.scrollHeight,
+            }).then(canvas => {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const pdfWidth = 210;
+                const pdfHeight = 297;
+                const margin = 8;
+                const usableWidth = pdfWidth - 2 * margin;
+                const usableHeight = pdfHeight - 2 * margin;
+
+                const imgWidth = usableWidth;
+                const totalImgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                // Si cabe en una página
+                if (totalImgHeight <= usableHeight) {
+                    pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', margin, margin, imgWidth, totalImgHeight);
+                } else {
+                    // Dividir en varias páginas
+                    let currentY = 0;
+                    const pageHeightPx = (usableHeight / totalImgHeight) * canvas.height; // altura en px por página
+
+                    while (currentY < canvas.height) {
+                        if (currentY > 0) pdf.addPage();
+
+                        const tempCanvas = document.createElement('canvas');
+                        const remainingHeight = Math.min(pageHeightPx, canvas.height - currentY);
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = remainingHeight;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.drawImage(canvas, 0, currentY, canvas.width, remainingHeight, 0, 0, canvas.width, remainingHeight);
+
+                        const pageImgData = tempCanvas.toDataURL('image/jpeg', 1.0);
+                        const pageImgHeight = (remainingHeight * imgWidth) / canvas.width;
+                        pdf.addImage(pageImgData, 'JPEG', margin, margin, imgWidth, pageImgHeight);
+
+                        currentY += remainingHeight;
                     }
-                }).catch(err => {
-                    console.error('Error en html2canvas:', err);
-                    alert('Error al generar el recibo: ' + err.message);
-                    document.body.removeChild(tempDiv);
-                    if (btnElement) {
-                        btnElement.disabled = false;
-                        btnElement.innerHTML = originalText;
-                    }
-                });
-            }, 400);
-        };
+                }
+
+                const ev = localEvents[currentReceiptKey];
+                const nombreCliente = ev ? ev.clientName || 'Cliente' : 'Cliente';
+                pdf.save(`Recibo_${nombreCliente.replace(/[^a-zA-Z0-9]/g, '_')}_${formatDate(ev ? ev.eventDate : '')}.pdf`);
+            }).catch(err => {
+                console.error('Error al generar PDF:', err);
+                alert('Error al generar el PDF: ' + err.message);
+            });
+        });
 
         // ========== HELPERS ==========
         function cleanPhone(phone) {
