@@ -478,7 +478,7 @@
                 <img src="dj michael logo principal.png" alt="DJ Michael Logo" onerror="this.style.display='none'" />
                 <span class="logo-text">DJ MICHAEL · AGENDA</span>
             </a>
-            <a href="#" class="btn-secondary">
+            <a href="index.html" class="btn-secondary">
                 <i class="fa-solid fa-arrow-left"></i> Volver a la Web
             </a>
         </div>
@@ -608,6 +608,9 @@
         const CONFIG = {
             FIREBASE_URL: 'https://pagina-mp-default-rtdb.asia-southeast1.firebasedatabase.app/'
         };
+
+        // ========== URL DEL LOGO (CAMBIA AQUÍ SI ES NECESARIO) ==========
+        const LOGO_URL = 'dj michael logo principal.png'; // Ruta relativa o URL absoluta
 
         const eventForm = document.getElementById('eventForm');
         const eventsContainer = document.getElementById('eventsContainer');
@@ -1012,7 +1015,7 @@
                     <!-- ENCABEZADO -->
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #dc2626; padding-bottom: 12px; margin-bottom: 18px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img src="dj michael logo principal.png" alt="DJ Michael" style="height: 55px; width: auto; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('logo-fallback-pdf').style.display='inline-block';" />
+                            <img src="${LOGO_URL}" alt="DJ Michael" style="height: 55px; width: auto; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('logo-fallback-pdf').style.display='inline-block';" />
                             <span id="logo-fallback-pdf" style="display: none; font-size: 28px; font-weight: 800; color: #dc2626; letter-spacing: 2px;">DJ MICHAEL</span>
                             <div>
                                 <div style="font-size: 14px; font-weight: 600; color: #475569;">SONIDO • ILUMINACIÓN PROFESIONAL • EFECTOS VISUALES</div>
